@@ -1,39 +1,154 @@
+// ============================================================
+// APP CONTEXT — Global State Management
+// ============================================================
 import React, { createContext, useContext, useState } from 'react';
-import { users, initialBookings } from '../data/dummy';
-import { calcTotal } from '../utils/helpers';
+import {
+  dummyUsers,
+  initialBookings,
+  initialMonitoring,
+  HARGA_PER_HARI,
+} from '../data/dummyData';
 
-const Ctx = createContext(null);
-export const useApp = () => useContext(Ctx);
+const AppContext = createContext(null);
 
-export function AppProvider({ children }) {
-  const [user, setUser] = useState(null);
+export const AppProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [registeredUsers, setRegisteredUsers] = useState(dummyUsers);
   const [bookings, setBookings] = useState(initialBookings);
+  const [monitoringData, setMonitoringData] = useState(initialMonitoring);
 
-  const update = (id, patch) => setBookings((list) => list.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-
-  const login = (id, password) => {
-    const u = users.find((x) => (x.login === id.trim().toLowerCase() || x.phone === id.trim()) && x.password === password);
-    if (u) setUser(u);
-    return u;
+  // ── AUTH ────────────────────────────────────────────────────
+  const login = (email, password) => {
+    const trimmedEmail = email.trim().toLowerCase();
+    const user = registeredUsers.find(
+      (u) => u.email.toLowerCase() === trimmedEmail && u.password === password
+    );
+    if (user) {
+      setCurrentUser(user);
+      return { success: true, user };
+    }
+    return { success: false, message: 'Email atau password salah.' };
   };
-  const logout = () => setUser(null);
 
-  const addBooking = (data) => {
-    const b = { id: 'b' + Date.now(), customerId: user.id, status: 'Menunggu Konfirmasi', location: '',
-      paid: false, payMethod: null, report: null, total: calcTotal(data.entry, data.exit), ...data };
-    setBookings((l) => [b, ...l]);
-    return b.id;
+  const logout = () => {
+    setCurrentUser(null);
   };
-  const cancelBooking = (id) => update(id, { status: 'Dibatalkan' });
-  const confirmBooking = (id, location) => update(id, { status: 'Booking Dikonfirmasi', location });
-  const rejectBooking = (id) => update(id, { status: 'Ditolak' });
-  const pay = (id, method) => update(id, { paid: true, payMethod: method, status: 'Pembayaran Berhasil' });
-  const finishBooking = (id) => update(id, { status: 'Selesai' });
-  const saveReport = (id, report, location) => update(id, { report, location, status: 'Sedang Dititipkan' });
+
+  const register = (userData) => {
+    const exists = registeredUsers.find(
+      (u) => u.email.toLowerCase() === userData.email.toLowerCase()
+    );
+    if (exists) {
+      return { success: false, message: 'Email sudah terdaftar.' };
+    }
+    const newUser = {
+      id: `u${Date.now()}`,
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      phone: userData.phone || '',
+      role: 'customer',
+    };
+    setRegisteredUsers((prev) => [...prev, newUser]);
+    setCurrentUser(newUser);
+    return { success: true, user: newUser };
+  };
+
+  // ── BOOKINGS ────────────────────────────────────────────────
+  const addBooking = (bookingData) => {
+    const days = calculateDuration(bookingData.tanggalMasuk, bookingData.tanggalKeluar);
+    const totalBiaya = days * HARGA_PER_HARI;
+    const newBooking = {
+      id: `b${Date.now()}`,
+      customerId: currentUser.id,
+      customerName: currentUser.name,
+      customerPhone: currentUser.phone || '-',
+      status: 'menunggu_konfirmasi',
+      lokasi: null,
+      totalBiaya,
+      metodePembayaran: null,
+      createdAt: new Date().toISOString().split('T')[0],
+      fotoIndex: Math.floor(Math.random() * 3),
+      catatan: '',
+      ...bookingData,
+    };
+    setBookings((prev) => [newBooking, ...prev]);
+    return newBooking;
+  };
+
+  const updateBooking = (bookingId, updates) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, ...updates } : b))
+    );
+  };
+
+  const getBookingById = (bookingId) =>
+    bookings.find((b) => b.id === bookingId);
+
+  const getBookingsByCustomer = (customerId) =>
+    bookings.filter((b) => b.customerId === customerId);
+
+  const getActiveBookingByCustomer = (customerId) =>
+    bookings.find(
+      (b) =>
+        b.customerId === customerId &&
+        ['sedang_dititipkan', 'pembayaran_berhasil', 'dikonfirmasi', 'menunggu_konfirmasi', 'menunggu_pembayaran'].includes(b.status)
+    );
+
+  // ── MONITORING ──────────────────────────────────────────────
+  const addOrUpdateMonitoring = (entry) => {
+    const exists = monitoringData.find((m) => m.bookingId === entry.bookingId);
+    if (exists) {
+      setMonitoringData((prev) =>
+        prev.map((m) =>
+          m.bookingId === entry.bookingId ? { ...m, ...entry } : m
+        )
+      );
+    } else {
+      setMonitoringData((prev) => [
+        ...prev,
+        { id: `m${Date.now()}`, ...entry },
+      ]);
+    }
+  };
+
+  const getMonitoringByBookingId = (bookingId) =>
+    monitoringData.find((m) => m.bookingId === bookingId);
+
+  // ── HELPERS ─────────────────────────────────────────────────
+  const calculateDuration = (start, end) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? diff : 1;
+  };
 
   return (
-    <Ctx.Provider value={{ user, bookings, login, logout, addBooking, cancelBooking, confirmBooking, rejectBooking, pay, finishBooking, saveReport }}>
+    <AppContext.Provider
+      value={{
+        currentUser,
+        bookings,
+        monitoringData,
+        login,
+        logout,
+        register,
+        addBooking,
+        updateBooking,
+        getBookingById,
+        getBookingsByCustomer,
+        getActiveBookingByCustomer,
+        addOrUpdateMonitoring,
+        getMonitoringByBookingId,
+        calculateDuration,
+      }}
+    >
       {children}
-    </Ctx.Provider>
+    </AppContext.Provider>
   );
-}
+};
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) throw new Error('useApp must be used within AppProvider');
+  return context;
+};

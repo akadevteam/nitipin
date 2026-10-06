@@ -1,25 +1,137 @@
-const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-export const PRICE_PER_DAY = 15000;
+// ============================================================
+// HELPER UTILITIES
+// ============================================================
 
-export const formatDate = (iso) => {
-  if (!iso) return '-';
-  const [y, m, d] = iso.split('-').map(Number);
-  if (!y || !m || !d) return iso;
-  return `${d} ${BULAN[m - 1]} ${y}`;
+/**
+ * Format angka ke format Rupiah
+ * @param {number} amount
+ * @returns {string} "Rp 90.000"
+ */
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(amount);
 };
-export const todayISO = () => '2026-09-29';
-export const isValidDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s).getTime());
-export const calcDays = (a, b) => Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000));
-export const calcTotal = (a, b) => calcDays(a, b) * PRICE_PER_DAY;
-export const rupiah = (n) => 'Rp ' + n.toLocaleString('id-ID');
 
-export const ACTIVE_STATUS = ['Menunggu Konfirmasi', 'Booking Dikonfirmasi', 'Pembayaran Berhasil', 'Sedang Dititipkan'];
-export const canCancel = (b) => b.status === 'Menunggu Konfirmasi' || (b.status === 'Booking Dikonfirmasi' && !b.paid);
-
-const fuelSpeech = { '¼': 'satu per empat', '½': 'setengah', '¾': 'tiga per empat' };
-export const reportSpeech = (b) => {
-  const r = b.report;
-  if (!r) return `Motor ${b.plate} belum memiliki laporan kondisi.`;
-  return `Motor ${b.plate} berada di ${b.location}. Kondisinya ${r.overall.toLowerCase()}. Bensin ${fuelSpeech[r.fuel] || r.fuel.toLowerCase()}. Body ${r.body.toLowerCase()}. Ban ${r.tire.toLowerCase()}.`;
+/**
+ * Format tanggal ke format Indonesia
+ * @param {string} dateStr — "YYYY-MM-DD"
+ * @returns {string} "29 September 2026"
+ */
+export const formatDate = (dateStr) => {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 };
-export const paymentSpeech = (b) => `Pembayaran berhasil. Motor ${b.plate} telah terdaftar untuk penitipan.`;
+
+/**
+ * Format tanggal singkat
+ * @param {string} dateStr
+ * @returns {string} "29 Sep 2026"
+ */
+export const formatDateShort = (dateStr) => {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+/**
+ * Hitung durasi penitipan dalam hari
+ * @param {string} start
+ * @param {string} end
+ * @returns {number}
+ */
+export const calculateDuration = (start, end) => {
+  const s = new Date(start + 'T00:00:00');
+  const e = new Date(end + 'T00:00:00');
+  const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24));
+  return diff > 0 ? diff : 1;
+};
+
+/**
+ * Hitung biaya berdasarkan durasi
+ * @param {number} days
+ * @param {number} pricePerDay
+ * @returns {number}
+ */
+export const calculateCost = (days, pricePerDay = 30000) => {
+  return days * pricePerDay;
+};
+
+/**
+ * Cek apakah booking masih bisa dibatalkan
+ * @param {string} status
+ * @returns {boolean}
+ */
+export const canCancelBooking = (status) => {
+  return ['menunggu_konfirmasi', 'dikonfirmasi'].includes(status);
+};
+
+/**
+ * Cek apakah booking sudah bisa dibayar
+ * @param {string} status
+ * @returns {boolean}
+ */
+export const canPayBooking = (status) => {
+  return status === 'dikonfirmasi';
+};
+
+/**
+ * Dapatkan nama metode pembayaran
+ * @param {string} method
+ * @returns {string}
+ */
+export const getPaymentMethodLabel = (method) => {
+  const labels = {
+    tunai: 'Tunai',
+    qris: 'QRIS',
+    transfer: 'Transfer Bank',
+  };
+  return labels[method] || method || '-';
+};
+
+/**
+ * Generate teks TTS untuk monitoring motor
+ * @param {object} booking
+ * @param {object} monitoring
+ * @returns {string}
+ */
+export const generateMonitoringTTS = (booking, monitoring) => {
+  let text = `Motor ${booking.nomorPolisi}`;
+  if (monitoring?.lokasi) {
+    text += ` berada di ${monitoring.lokasi}.`;
+  }
+  text += ` Kondisinya ${monitoring?.kondisiKeseluruhan || 'tidak diketahui'}.`;
+  if (monitoring?.bensin) {
+    text += ` Bensin ${monitoring.bensin}.`;
+  }
+  if (monitoring?.kondisiBody) {
+    text += ` Body: ${monitoring.kondisiBody}.`;
+  }
+  if (monitoring?.kondisiBan) {
+    text += ` Ban: ${monitoring.kondisiBan}.`;
+  }
+  if (monitoring?.catatan) {
+    text += ` Catatan: ${monitoring.catatan}`;
+  }
+  return text;
+};
+
+/**
+ * Generate teks TTS untuk pembayaran berhasil
+ * @param {object} booking
+ * @returns {string}
+ */
+export const generatePaymentSuccessTTS = (booking) => {
+  return `Pembayaran berhasil. Motor ${booking.nomorPolisi} telah terdaftar untuk penitipan.`;
+};

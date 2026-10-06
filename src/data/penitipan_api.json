@@ -1,0 +1,81 @@
+{
+  "status": "success",
+  "statusCode": 200,
+  "message": "Data layanan dan ketersediaan slot penitipan berhasil diambil",
+  "timestamp": "2026-10-06T08:00:00Z",
+  "data": {
+    "layanan_penitipan": [
+      {
+        "id_layanan": "SRV-01",
+        "nama_paket": "Penitipan Reguler Harian",
+        "tarif_per_hari": 30000,
+        "deskripsi": "Parkir indoor aman dengan penjagaan 24 jam dan pantauan CCTV.",
+        "fasilitas": ["Penjagaan 24 Jam", "CCTV Aktif", "Tempat Teduh"],
+        "tersedia": true
+      },
+      {
+        "id_layanan": "SRV-02",
+        "nama_paket": "Penitipan Mingguan + Cuci",
+        "tarif_per_hari": 25000,
+        "deskripsi": "Paket hemat penitipan minimal 7 hari, gratis cuci motor 1x sebelum diambil.",
+        "fasilitas": ["Gratis Cuci Motor", "CCTV Aktif", "Cover Motor", "Cek Tekanan Ban"],
+        "tersedia": true
+      },
+      {
+        "id_layanan": "SRV-03",
+        "nama_paket": "Penitipan Bulanan VIP",
+        "tarif_per_hari": 20000,
+        "deskripsi": "Slot khusus eksklusif dengan pemanasan mesin rutin 2 hari sekali.",
+        "fasilitas": ["Slot Khusus Terdepan", "Pemanasan Mesin Rutin", "Cuci Motor 2x", "Laporan Foto Berkala"],
+        "tersedia": false
+      }
+    ],
+    "slot_parkir": [
+      {
+        "kode_slot": "A-01",
+        "zona": "Zona Depan",
+        "tipe_motor": "Semua Jenis",
+        "status_terisi": true,
+        "kendaraan_terparkir": {
+          "nomor_polisi": "B 5069 BLP",
+          "pemilik": "Budi Santoso",
+          "merek_motor": "Honda Vario 160",
+          "waktu_checkin": "2026-10-01T09:00:00Z"
+        }
+      },
+      {
+        "kode_slot": "A-12",
+        "zona": "Zona Depan",
+        "tipe_motor": "Matic / Bebek",
+        "status_terisi": true,
+        "kendaraan_terparkir": {
+          "nomor_polisi": "D 4321 XYZ",
+          "pemilik": "Siti Rahayu",
+          "merek_motor": "Yamaha NMAX 155",
+          "waktu_checkin": "2026-10-02T14:30:00Z"
+        }
+      },
+      {
+        "kode_slot": "B-07",
+        "zona": "Zona Tengah",
+        "tipe_motor": "Semua Jenis",
+        "status_terisi": false,
+        "kendaraan_terparkir": null
+      },
+      {
+        "kode_slot": "B-15",
+        "zona": "Zona Tengah",
+        "tipe_motor": "Motor Kopling / Sport",
+        "status_terisi": false,
+        "kendaraan_terparkir": null
+      },
+      {
+        "kode_slot": "C-03",
+        "zona": "Zona Belakang (Indoor)",
+        "tipe_motor": "Semua Jenis",
+        "status_terisi": false,
+        "kendaraan_terparkir": null
+      }
+    ]
+  }
+}
