@@ -13,9 +13,20 @@ import BookingDetailPengelolaScreen from '../screens/pengelola/BookingDetailScre
 import MotorListScreen from '../screens/pengelola/MotorListScreen';
 import MonitoringFormScreen from '../screens/pengelola/MonitoringFormScreen';
 import ProfilePengelolaScreen from '../screens/pengelola/ProfileScreen';
+import PermissionsScreen from '../screens/PermissionsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+// ── Profile Stack Pengelola ─────────────────────────────────────
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfilePengelola" component={ProfilePengelolaScreen} />
+      <Stack.Screen name="Permissions" component={PermissionsScreen} />
+    </Stack.Navigator>
+  );
+}
 
 // ── Booking Stack ───────────────────────────────────────────────
 function BookingStack() {
@@ -78,7 +89,7 @@ export default function PengelolaNavigator() {
       <Tab.Screen name="DashboardTab" component={DashboardScreen} options={{ title: 'Dashboard' }} />
       <Tab.Screen name="BookingTab" component={BookingStack} options={{ title: 'Booking' }} />
       <Tab.Screen name="MotorTab" component={MotorStack} options={{ title: 'Motor' }} />
-      <Tab.Screen name="ProfilTab" component={ProfilePengelolaScreen} options={{ title: 'Profil' }} />
+      <Tab.Screen name="ProfilTab" component={ProfileStack} options={{ title: 'Profil' }} />
     </Tab.Navigator>
   );
 }

@@ -18,19 +18,78 @@ export default function PhotoUploader({
   photoUri,
   onPhotoSelected,
   label = 'Foto Motor',
-  subtitle = 'Ambil foto langsung atau pilih dari galeri HP Anda',
+  subtitle = 'Ambil foto langsung dari kamera sensor atau galeri HP',
   style,
 }) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null); // 'camera' | 'gallery'
 
-  // 1. Pilih dari Galeri HP
-  const pickFromGallery = async () => {
+  // Fungsi internal mengecek izin Kamera dengan dialog persetujuan (Runtime Permission Week 7)
+  const handleRequestCamera = async () => {
+    setModalVisible(false);
+
+    // Cek status izin saat ini
+    const status = await ImagePicker.getCameraPermissionsAsync();
+    if (status.granted) {
+      launchCameraDirectly();
+      return;
+    }
+
+    // Jika belum diizinkan, tampilkan dialog persetujuan edukatif
+    setPendingAction('camera');
+    setPermissionDialogVisible(true);
+  };
+
+  // Fungsi internal mengecek izin Galeri dengan dialog persetujuan
+  const handleRequestGallery = async () => {
+    setModalVisible(false);
+
+    const status = await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (status.granted) {
+      launchGalleryDirectly();
+      return;
+    }
+
+    setPendingAction('gallery');
+    setPermissionDialogVisible(true);
+  };
+
+  // Eksekusi buka kamera setelah izin
+  const launchCameraDirectly = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Izin Kamera Ditolak',
+          'Aplikasi membutuhkan izin sensor kamera untuk mengambil foto kendaraan/kondisi motor. Anda dapat mengaktifkannya di pengaturan HP.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        onPhotoSelected(result.assets[0].uri);
+      }
+    } catch (err) {
+      console.error('Error opening camera:', err);
+      Alert.alert('Gagal Mengakses Kamera', err.message);
+    }
+  };
+
+  // Eksekusi buka galeri setelah izin
+  const launchGalleryDirectly = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (permission.status !== 'granted') {
+      if (!permission.granted) {
         Alert.alert(
-          'Izin Ditolak',
-          'Aplikasi membutuhkan izin untuk membuka galeri foto di perangkat Anda.'
+          'Izin Galeri Ditolak',
+          'Aplikasi membutuhkan izin untuk memilih foto kendaraan dari penyimpanan perangkat.'
         );
         return;
       }
@@ -44,43 +103,33 @@ export default function PhotoUploader({
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         onPhotoSelected(result.assets[0].uri);
-        setModalVisible(false);
       }
     } catch (err) {
-      console.error('Error picking image from gallery:', err);
+      console.error('Error opening gallery:', err);
       Alert.alert('Gagal Membuka Galeri', err.message);
     }
   };
 
-  // 2. Ambil Foto Kamera Langsung
-  const takeWithCamera = async () => {
-    try {
-      const permission = await ImagePicker.requestCameraPermissionsAsync();
-      if (permission.status !== 'granted') {
-        Alert.alert(
-          'Izin Ditolak',
-          'Aplikasi membutuhkan izin untuk mengakses kamera perangkat Anda.'
-        );
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        onPhotoSelected(result.assets[0].uri);
-        setModalVisible(false);
-      }
-    } catch (err) {
-      console.error('Error taking photo:', err);
-      Alert.alert('Gagal Mengakses Kamera', err.message);
+  const handleConfirmPermission = () => {
+    setPermissionDialogVisible(false);
+    if (pendingAction === 'camera') {
+      launchCameraDirectly();
+    } else if (pendingAction === 'gallery') {
+      launchGalleryDirectly();
     }
+    setPendingAction(null);
   };
 
-  // 3. Preset Foto Motor Dummy
+  const handleDenyPermission = () => {
+    setPermissionDialogVisible(false);
+    setPendingAction(null);
+    Alert.alert(
+      'Akses Dibatalkan',
+      'Anda membatalkan permintaan izin. Fitur kamera tidak dapat dijalankan tanpa izin pengguna.'
+    );
+  };
+
+  // Preset foto motor
   const pickPreset = (uri) => {
     onPhotoSelected(uri);
     setModalVisible(false);
@@ -134,10 +183,14 @@ export default function PhotoUploader({
           </View>
           <Text style={styles.uploadPrompt}>Tambahkan Foto Kendaraan</Text>
           <Text style={styles.uploadSub}>{subtitle}</Text>
+          <View style={styles.sensorBadge}>
+            <Ionicons name="hardware-chip-outline" size={12} color={colors.primary} />
+            <Text style={styles.sensorBadgeText}>Sensor Kamera Perangkat</Text>
+          </View>
         </TouchableOpacity>
       )}
 
-      {/* Modal Pilihan Pengambilan Foto */}
+      {/* 1. MODAL PILIHAN SUMBER FOTO */}
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalCard, shadows.lg]}>
@@ -150,7 +203,7 @@ export default function PhotoUploader({
 
             <TouchableOpacity
               style={styles.optionBtn}
-              onPress={takeWithCamera}
+              onPress={handleRequestCamera}
               activeOpacity={0.7}
             >
               <View style={[styles.optionIcon, { backgroundColor: '#EBF5FF' }]}>
@@ -158,14 +211,14 @@ export default function PhotoUploader({
               </View>
               <View style={styles.optionTextWrap}>
                 <Text style={styles.optionTitle}>Ambil Foto dengan Kamera</Text>
-                <Text style={styles.optionDesc}>Buka kamera HP Anda langsung</Text>
+                <Text style={styles.optionDesc}>Mengakses sensor kamera perangkat Anda</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.neutral300} />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.optionBtn}
-              onPress={pickFromGallery}
+              onPress={handleRequestGallery}
               activeOpacity={0.7}
             >
               <View style={[styles.optionIcon, { backgroundColor: '#DEF7EC' }]}>
@@ -173,7 +226,7 @@ export default function PhotoUploader({
               </View>
               <View style={styles.optionTextWrap}>
                 <Text style={styles.optionTitle}>Pilih dari Galeri Foto</Text>
-                <Text style={styles.optionDesc}>Pilih gambar motor yang tersimpan di HP</Text>
+                <Text style={styles.optionDesc}>Pilih gambar yang tersimpan di HP</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={colors.neutral300} />
             </TouchableOpacity>
@@ -205,6 +258,62 @@ export default function PhotoUploader({
           </View>
         </View>
       </Modal>
+
+      {/* 2. MODAL DIALOG IZIN SENSOR PERANGKAT (Runtime Permission) */}
+      <Modal visible={permissionDialogVisible} transparent animationType="slide">
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.permDialogCard, shadows.lg]}>
+            <View style={styles.permIconContainer}>
+              <Ionicons
+                name={pendingAction === 'camera' ? 'camera' : 'images'}
+                size={40}
+                color={colors.primary}
+              />
+            </View>
+
+            <Text style={styles.permTitle}>
+              {pendingAction === 'camera'
+                ? 'Izinkan Akses Sensor Kamera?'
+                : 'Izinkan Akses Galeri & Media?'}
+            </Text>
+
+            <Text style={styles.permDescription}>
+              {pendingAction === 'camera'
+                ? 'Aplikasi NITIPIN memerlukan izin sensor kamera untuk mengambil foto dokumentasi kendaraan secara langsung saat booking dan pemeriksaan kondisi fisik motor.'
+                : 'Aplikasi NITIPIN memerlukan izin media penyimpanan untuk memilih foto dokumen kendaraan dari perangkat Anda.'}
+            </Text>
+
+            <View style={styles.permBestPracticeBox}>
+              <View style={styles.permCheckRow}>
+                <Ionicons name="shield-checkmark" size={16} color={colors.secondary} />
+                <Text style={styles.permCheckText}>Data foto hanya digunakan untuk verifikasi penitipan</Text>
+              </View>
+              <View style={styles.permCheckRow}>
+                <Ionicons name="lock-closed" size={16} color={colors.secondary} />
+                <Text style={styles.permCheckText}>Privasi pengguna terjamin aman</Text>
+              </View>
+            </View>
+
+            <View style={styles.permButtonRow}>
+              <TouchableOpacity
+                style={styles.permDenyBtn}
+                onPress={handleDenyPermission}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.permDenyText}>Tolak</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.permAllowBtn}
+                onPress={handleConfirmPermission}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.permAllowText}>Izinkan</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -225,7 +334,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary + '60',
     backgroundColor: colors.primaryLight + '40',
     borderRadius: 16,
-    padding: 24,
+    padding: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -249,6 +358,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.neutral500,
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  sensorBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  sensorBadgeText: {
+    fontSize: 11,
+    color: colors.primary,
+    fontWeight: '700',
   },
   previewContainer: {
     borderRadius: 16,
@@ -258,7 +382,7 @@ const styles = StyleSheet.create({
   },
   previewImage: {
     width: '100%',
-    height: 190,
+    height: 200,
   },
   previewOverlay: {
     position: 'absolute',
@@ -268,17 +392,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
   badgeSuccess: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: colors.secondary,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   badgeText: {
     color: colors.white,
@@ -287,6 +411,7 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   changeBtn: {
@@ -295,8 +420,8 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: colors.white,
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   changeBtnText: {
     fontSize: 12,
@@ -305,22 +430,21 @@ const styles = StyleSheet.create({
   },
   removeBtn: {
     backgroundColor: colors.white,
-    padding: 5,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 6,
+    borderRadius: 8,
   },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   modalCard: {
+    width: '100%',
     backgroundColor: colors.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 20,
     padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -336,10 +460,10 @@ const styles = StyleSheet.create({
   optionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    gap: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral100,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: colors.neutral50,
+    marginBottom: 10,
   },
   optionIcon: {
     width: 44,
@@ -347,6 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
   optionTextWrap: {
     flex: 1,
@@ -364,12 +489,12 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: colors.neutral100,
-    marginVertical: 14,
+    marginVertical: 12,
   },
   presetLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.neutral500,
+    color: colors.neutral600,
     marginBottom: 10,
   },
   presetRow: {
@@ -379,7 +504,6 @@ const styles = StyleSheet.create({
   },
   presetThumbnailWrap: {
     flex: 1,
-    height: 70,
     borderRadius: 10,
     overflow: 'hidden',
     position: 'relative',
@@ -388,25 +512,25 @@ const styles = StyleSheet.create({
   },
   presetThumbnail: {
     width: '100%',
-    height: '100%',
+    height: 65,
   },
   presetBadge: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     paddingVertical: 2,
     alignItems: 'center',
   },
   presetBadgeText: {
     color: colors.white,
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   cancelBtn: {
-    alignItems: 'center',
     paddingVertical: 12,
+    alignItems: 'center',
     backgroundColor: colors.neutral100,
     borderRadius: 12,
   },
@@ -414,5 +538,84 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: colors.neutral700,
+  },
+
+  // Permission Dialog Styling (Sesuai Konsep Week 7 Slide 5)
+  permDialogCard: {
+    width: '100%',
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+  },
+  permIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  permTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.neutral900,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  permDescription: {
+    fontSize: 13,
+    color: colors.neutral600,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  permBestPracticeBox: {
+    width: '100%',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  permCheckRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  permCheckText: {
+    fontSize: 12,
+    color: colors.neutral700,
+    flex: 1,
+  },
+  permButtonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  permDenyBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: colors.neutral100,
+    alignItems: 'center',
+  },
+  permDenyText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.neutral700,
+  },
+  permAllowBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+  },
+  permAllowText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.white,
   },
 });

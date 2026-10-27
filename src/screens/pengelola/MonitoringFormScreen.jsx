@@ -50,6 +50,9 @@ export default function MonitoringFormScreen({ navigation, route }) {
   const [lokasi, setLokasi] = useState(
     existingMonitoring?.lokasi || selectedBooking?.lokasi || LOKASI_OPTIONS[0]
   );
+  const [fotoUriState, setFotoUriState] = useState(
+    existingMonitoring?.fotoUri || selectedBooking?.fotoUri || null
+  );
   const [loading, setLoading] = useState(false);
 
   if (!selectedBooking) {
@@ -77,6 +80,7 @@ export default function MonitoringFormScreen({ navigation, route }) {
         kondisiBody,
         kondisiBan,
         catatan,
+        fotoUri: fotoUriState,
         fotoIndex: selectedBooking.fotoIndex ?? 0,
       });
       setLoading(false);
@@ -115,6 +119,15 @@ export default function MonitoringFormScreen({ navigation, route }) {
               <Text style={styles.bannerOwner}>Pemilik: {selectedBooking.customerName}</Text>
             </View>
           </View>
+
+          {/* Foto Kondisi Motor Terkini (Sensor Kamera Pengelola) */}
+          <PhotoUploader
+            photoUri={fotoUriState}
+            onPhotoSelected={(uri) => setFotoUriState(uri)}
+            label="Foto Kondisi Motor Terkini"
+            subtitle="Gunakan sensor kamera untuk mengambil foto fisik motor saat ini"
+            style={{ marginBottom: 16 }}
+          />
 
           {/* Lokasi Penyimpanan */}
           <View style={styles.sectionCard}>

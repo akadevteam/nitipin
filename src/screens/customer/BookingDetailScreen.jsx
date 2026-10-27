@@ -43,7 +43,7 @@ export default function BookingDetailScreen({ navigation, route }) {
   }
 
   const duration = calculateDuration(booking.tanggalMasuk, booking.tanggalKeluar);
-  const fotoUri = MOTOR_PLACEHOLDER_IMAGES[booking.fotoIndex ?? 0];
+  const fotoUri = booking?.fotoUri || MOTOR_PLACEHOLDER_IMAGES[booking?.fotoIndex ?? 0];
 
   const handleCancel = () => {
     Alert.alert(

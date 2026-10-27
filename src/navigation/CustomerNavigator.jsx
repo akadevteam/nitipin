@@ -15,6 +15,7 @@ import MonitoringScreen from '../screens/customer/MonitoringScreen';
 import ConditionReportScreen from '../screens/customer/ConditionReportScreen';
 import HistoryScreen from '../screens/customer/HistoryScreen';
 import ProfileScreen from '../screens/customer/ProfileScreen';
+import PermissionsScreen from '../screens/PermissionsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,19 @@ function HomeStack() {
       <Stack.Screen name="BookingForm" component={BookingScreen} />
       <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
       <Stack.Screen name="Payment" component={PaymentScreen} />
+      <Stack.Screen name="Permissions" component={PermissionsScreen} />
+      <Stack.Screen name="Monitoring" component={MonitoringScreen} />
+      <Stack.Screen name="ConditionReport" component={ConditionReportScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// ── Profile Stack ──────────────────────────────────────────────
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Permissions" component={PermissionsScreen} />
     </Stack.Navigator>
   );
 }
@@ -93,7 +107,7 @@ export default function CustomerNavigator() {
       <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Beranda' }} />
       <Tab.Screen name="MonitoringTab" component={MonitoringStack} options={{ title: 'Monitoring' }} />
       <Tab.Screen name="RiwayatTab" component={HistoryStack} options={{ title: 'Riwayat' }} />
-      <Tab.Screen name="ProfilTab" component={ProfileScreen} options={{ title: 'Profil' }} />
+      <Tab.Screen name="ProfilTab" component={ProfileStack} options={{ title: 'Profil' }} />
     </Tab.Navigator>
   );
 }

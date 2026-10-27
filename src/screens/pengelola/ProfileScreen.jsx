@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../context/AppContext';
 import { colors, shadows } from '../../theme/colors';
 
-export default function ProfilePengelolaScreen() {
+export default function ProfilePengelolaScreen({ navigation }) {
   const { currentUser, logout, bookings } = useApp();
 
   const totalBooking = bookings.length;
@@ -56,6 +56,22 @@ export default function ProfilePengelolaScreen() {
           <InfoRow icon="time-outline" label="Jam Operasional" value="24 Jam Setiap Hari" />
           <InfoRow icon="call-outline" label="Hotline Admin" value={currentUser?.phone || '085678901234'} />
         </View>
+
+        {/* Sensor & Perizinan (Week 7) */}
+        <TouchableOpacity
+          style={styles.sensorMenuCard}
+          onPress={() => navigation.navigate('Permissions')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.sensorMenuIcon}>
+            <Ionicons name="hardware-chip-outline" size={20} color={colors.primary} />
+          </View>
+          <View style={styles.sensorMenuInfo}>
+            <Text style={styles.sensorMenuTitle}>Izin Sensor & Perangkat</Text>
+            <Text style={styles.sensorMenuSub}>Kamera foto kondisi, media, & privasi sensor</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.neutral400} />
+        </TouchableOpacity>
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
@@ -152,7 +168,27 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.neutral100,
   },
   infoLabel: { flex: 1, fontSize: 13, color: colors.neutral500 },
-  infoValue: { fontSize: 13, fontWeight: '600', color: colors.neutral900 },
+  sensorMenuCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    ...shadows.sm,
+  },
+  sensorMenuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  sensorMenuInfo: { flex: 1 },
+  sensorMenuTitle: { fontSize: 14, fontWeight: '700', color: colors.neutral900 },
+  sensorMenuSub: { fontSize: 11, color: colors.neutral500, marginTop: 2 },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',

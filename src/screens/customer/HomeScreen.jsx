@@ -74,7 +74,13 @@ export default function HomeScreen({ navigation }) {
                   icon="eye-outline"
                   label="Monitoring"
                   color={colors.secondary}
-                  onPress={() => navigation.getParent().navigate('MonitoringTab')}
+                  onPress={() => {
+                    try {
+                      navigation.navigate('Monitoring');
+                    } catch (e) {
+                      navigation.getParent()?.navigate('MonitoringTab');
+                    }
+                  }}
                 />
               )}
               {activeBooking.status === 'dikonfirmasi' && (
@@ -139,7 +145,14 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Riwayat Terbaru</Text>
-              <TouchableOpacity onPress={() => navigation.getParent().navigate('RiwayatTab')}>
+              <TouchableOpacity onPress={() => {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate('RiwayatTab');
+                } else {
+                  navigation.navigate('RiwayatTab');
+                }
+              }}>
                 <Text style={styles.seeAll}>Lihat Semua</Text>
               </TouchableOpacity>
             </View>

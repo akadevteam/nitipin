@@ -30,7 +30,7 @@ export default function ConditionReportScreen({ navigation, route }) {
   }
 
   const ttsText = generateMonitoringTTS(booking, monitoring);
-  const fotoUri = MOTOR_PLACEHOLDER_IMAGES[monitoring.fotoIndex ?? booking.fotoIndex ?? 0];
+  const fotoUri = monitoring?.fotoUri || booking?.fotoUri || MOTOR_PLACEHOLDER_IMAGES[monitoring.fotoIndex ?? booking.fotoIndex ?? 0];
 
   return (
     <SafeAreaView style={styles.safe}>

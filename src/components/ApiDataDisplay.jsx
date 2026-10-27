@@ -169,10 +169,15 @@ export default function ApiDataDisplay() {
                       </Text>
                     </View>
                   </View>
-                ) : (
+                ) : isAvail ? (
                   <View style={styles.availInfoBox}>
                     <Ionicons name="checkmark-circle-outline" size={13} color={colors.secondary} />
                     <Text style={styles.availText}>Siap Ditempati</Text>
+                  </View>
+                ) : (
+                  <View style={[styles.availInfoBox, { backgroundColor: colors.dangerLight }]}>
+                    <Ionicons name="close-circle-outline" size={13} color={colors.danger} />
+                    <Text style={[styles.availText, { color: colors.danger }]}>Slot Terisi / Penuh</Text>
                   </View>
                 )}
               </View>

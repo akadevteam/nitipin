@@ -43,11 +43,11 @@ export default function RegisterScreen({ navigation }) {
     return Object.keys(e).length === 0;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      const result = register({
+    try {
+      const result = await register({
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
@@ -55,10 +55,12 @@ export default function RegisterScreen({ navigation }) {
       });
       setLoading(false);
       if (!result.success) {
-        Alert.alert('Pendaftaran Gagal', result.message);
+        Alert.alert('Pendaftaran Gagal', result.message || 'Pendaftaran gagal');
       }
-      // On success, AppContext sets currentUser → AppNavigator auto-navigates
-    }, 800);
+    } catch (err) {
+      setLoading(false);
+      Alert.alert('Pendaftaran Gagal', 'Terjadi kesalahan sistem');
+    }
   };
 
   return (

@@ -1,0 +1,131 @@
+### Variabel Global
+@baseUrl = http://localhost:5000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. Login Customer (Budi) -> Jalankan ini, lalu salin tokennya ke @token di atas
+# @name loginCustomer
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "budi@gmail.com",
+  "password": "123456"
+}
+
+### 3. Login Pengelola (Admin Pak Agus)
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "pengelola@nitipin.id",
+  "password": "admin123"
+}
+
+### 4. Cek Profil /me (Menggunakan Token)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### 5. Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+### 6. Register User Baru
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Doni Pratama",
+  "email": "doni@gmail.com",
+  "phone": "081299887766",
+  "password": "123456"
+}
+
+### 7. Ambil Daftar Layanan (GET Layanan)
+GET {{baseUrl}}/layanan
+Authorization: Bearer {{token}}
+
+### 8. Tambah Paket Layanan Baru (Pengelola Only)
+POST {{baseUrl}}/layanan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama": "Paket Cuci + Titip Harian",
+  "tarif": 45000,
+  "tarif_unit": "hari",
+  "deskripsi": "Penitipan sehari penuh sudah termasuk cuci salju bersih berkilau.",
+  "fitur": ["Parkir teduh", "Cuci salju", "Semir ban", "CCTV 24/7"]
+}
+
+### 9. Update Layanan (Contoh: lay-001)
+PUT {{baseUrl}}/layanan/lay-001
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama": "Reguler (Harian) - Promo",
+  "tarif": 28000
+}
+
+### 10. Ambil Daftar Slot Parkir
+GET {{baseUrl}}/slots
+Authorization: Bearer {{token}}
+
+### 11. Tambah Slot Parkir Baru
+POST {{baseUrl}}/slots
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_slot": "Slot C-01",
+  "kapasitas": 1,
+  "status": "tersedia"
+}
+
+### 12. Ambil Semua Booking
+GET {{baseUrl}}/bookings
+Authorization: Bearer {{token}}
+
+### 13. Buat Booking Baru (Customer)
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nomorPolisi": "D 5555 ABC",
+  "merek": "Yamaha Aerox 155",
+  "warna": "Biru Silver",
+  "tanggalMasuk": "2026-10-15",
+  "tanggalKeluar": "2026-10-20",
+  "catatan": "Kunci stang tolong diperhatikan"
+}
+
+### 14. Update Status Booking (Contoh: bok-001)
+PATCH {{baseUrl}}/bookings/bok-001
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "selesai"
+}
+
+### 15. Ambil Laporan Monitoring Motor (bok-001)
+GET {{baseUrl}}/monitorings/bok-001
+Authorization: Bearer {{token}}
+
+### 16. Update Monitoring (Pengelola)
+POST {{baseUrl}}/monitorings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookingId": "bok-001",
+  "kondisi": "baik",
+  "bensin": "penuh",
+  "lokasi": "Slot A-01",
+  "catatan": "Motor telah dipanaskan dan dilap bersih."
+}

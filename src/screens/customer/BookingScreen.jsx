@@ -58,10 +58,10 @@ export default function BookingScreen({ navigation }) {
         { text: 'Batal', style: 'cancel' },
         {
           text: 'Ajukan',
-          onPress: () => {
+          onPress: async () => {
             setLoading(true);
-            setTimeout(() => {
-              const newBooking = addBooking({
+            try {
+              const newBooking = await addBooking({
                 ...form,
                 nomorPolisi: form.nomorPolisi.toUpperCase().trim(),
                 customerName: currentUser.name,
@@ -69,8 +69,13 @@ export default function BookingScreen({ navigation }) {
                 fotoIndex: 0,
               });
               setLoading(false);
-              navigation.replace('BookingDetail', { bookingId: newBooking.id });
-            }, 1000);
+              if (newBooking && newBooking.id) {
+                navigation.replace('BookingDetail', { bookingId: newBooking.id });
+              }
+            } catch (err) {
+              setLoading(false);
+              Alert.alert('Gagal', 'Terjadi kesalahan saat menyimpan booking');
+            }
           },
         },
       ]

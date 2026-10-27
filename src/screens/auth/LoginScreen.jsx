@@ -35,13 +35,16 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      const result = login(email.trim(), password);
+    try {
+      const result = await login(email.trim(), password);
       setLoading(false);
       if (!result.success) {
-        Alert.alert('Login Gagal', result.message);
+        Alert.alert('Login Gagal', result.message || 'Email atau password salah');
       }
-    }, 800);
+    } catch (err) {
+      setLoading(false);
+      Alert.alert('Login Gagal', 'Terjadi kesalahan sistem');
+    }
   };
 
   return (

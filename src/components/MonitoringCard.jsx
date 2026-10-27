@@ -6,7 +6,7 @@ import { MOTOR_PLACEHOLDER_IMAGES } from '../data/dummyData';
 import { formatDate } from '../utils/helpers';
 
 export default function MonitoringCard({ booking, monitoring, style }) {
-  const fotoUri = MOTOR_PLACEHOLDER_IMAGES[monitoring?.fotoIndex ?? booking?.fotoIndex ?? 0];
+  const fotoUri = monitoring?.fotoUri || booking?.fotoUri || MOTOR_PLACEHOLDER_IMAGES[monitoring?.fotoIndex ?? booking?.fotoIndex ?? 0];
 
   return (
     <View style={[styles.card, style]}>
@@ -33,7 +33,7 @@ export default function MonitoringCard({ booking, monitoring, style }) {
           <KondisiChip
             icon="shield-checkmark-outline"
             label="Kondisi"
-            value={monitoring?.kondisiKeseluruhan || '-'}
+            value={monitoring?.kondisiKeseluruhan || monitoring?.kondisi || 'Baik'}
             color={colors.secondary}
           />
           <KondisiChip

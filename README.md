@@ -34,7 +34,17 @@ nitipin/
 ├── app.json                      # Konfigurasi Expo
 ├── package.json
 │
+├── backend/                      # 🚀 Server REST API (Node.js + Express + MySQL)
+│   ├── .env                      # Konfigurasi Port, DB, dan JWT Secret
+│   ├── package.json              # Dependensi backend
+│   ├── server.js                 # Entry point Express
+│   ├── config/db.js              # Connection Pool MySQL
+│   ├── middleware/auth.js        # JWT verify middleware
+│   ├── routes/                   # Endpoint REST API (auth, bookings, monitorings, layanan, slots)
+│   └── database/                 # schema.sql & seed.js
+│
 └── src/
+
     ├── context/
     │   └── AppContext.js          # Global state: user, bookings, monitoring
     │

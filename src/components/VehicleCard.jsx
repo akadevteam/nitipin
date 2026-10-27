@@ -13,7 +13,7 @@ import { MOTOR_PLACEHOLDER_IMAGES } from '../data/dummyData';
 import { formatDateShort } from '../utils/helpers';
 
 export default function VehicleCard({ booking, onPress, style }) {
-  const fotoUri = MOTOR_PLACEHOLDER_IMAGES[booking.fotoIndex ?? 0];
+  const fotoUri = booking?.fotoUri || MOTOR_PLACEHOLDER_IMAGES[booking?.fotoIndex ?? 0];
 
   return (
     <TouchableOpacity
