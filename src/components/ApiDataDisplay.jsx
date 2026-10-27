@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchPenitipanData } from '../services/apiService';
@@ -16,12 +15,15 @@ export default function ApiDataDisplay() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [apiData, setApiData] = useState({ layanan: [], slots: [] });
+  const [dataSource, setDataSource] = useState(null); // 'server' | 'local' | 'none'
+  const [retryCount, setRetryCount] = useState(0);
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await fetchPenitipanData();
+      setDataSource(response.source || null);
       if (response.success) {
         setApiData(response.data);
       } else {
@@ -29,9 +31,15 @@ export default function ApiDataDisplay() {
       }
     } catch (err) {
       setError(err.message || 'Terjadi kesalahan sistem');
+      setDataSource('none');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setRetryCount((c) => c + 1);
+    loadData();
   };
 
   useEffect(() => {
@@ -43,10 +51,25 @@ export default function ApiDataDisplay() {
       {/* Header Section dengan Indikator Live REST API */}
       <View style={styles.headerRow}>
         <View>
-          <View style={styles.badgeApi}>
-            <View style={styles.onlineDot} />
-            <Text style={styles.badgeApiText}>REST API CONNECTED</Text>
-          </View>
+          {/* Badge: sumber data */}
+          {dataSource === 'server' && (
+            <View style={styles.badgeApi}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.badgeApiText}>🟢 LIVE SERVER</Text>
+            </View>
+          )}
+          {dataSource === 'local' && (
+            <View style={[styles.badgeApi, styles.badgeLocal]}>
+              <Ionicons name="archive-outline" size={10} color="#92400E" />
+              <Text style={[styles.badgeApiText, { color: '#92400E' }]}>⚡ CACHE LOKAL</Text>
+            </View>
+          )}
+          {dataSource === 'none' && (
+            <View style={[styles.badgeApi, styles.badgeError]}>
+              <Ionicons name="close-circle-outline" size={10} color={colors.danger} />
+              <Text style={[styles.badgeApiText, { color: colors.danger }]}>❌ GAGAL</Text>
+            </View>
+          )}
           <Text style={styles.sectionTitle}>Status Slot & Layanan</Text>
         </View>
 
@@ -66,6 +89,16 @@ export default function ApiDataDisplay() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Info sumber data */}
+      {dataSource === 'local' && (
+        <View style={styles.offlineNote}>
+          <Ionicons name="information-circle-outline" size={14} color="#92400E" />
+          <Text style={styles.offlineNoteText}>
+            Server tidak terjangkau — menampilkan data dari cache lokal
+          </Text>
+        </View>
+      )}
 
       {/* Tab Switcher: Slot Parkir vs Paket Layanan */}
       <View style={styles.tabContainer}>
@@ -116,9 +149,14 @@ export default function ApiDataDisplay() {
         </View>
       ) : error ? (
         <View style={styles.errorBox}>
-          <Ionicons name="alert-circle-outline" size={24} color={colors.danger} />
+          <Ionicons name="cloud-offline-outline" size={32} color={colors.danger} />
+          <Text style={styles.errorTitle}>Koneksi Gagal</Text>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={loadData}>
+          {retryCount > 0 && (
+            <Text style={styles.retryCountText}>Percobaan ke-{retryCount}</Text>
+          )}
+          <TouchableOpacity style={styles.retryBtn} onPress={handleRetry}>
+            <Ionicons name="refresh-outline" size={14} color={colors.danger} />
             <Text style={styles.retryText}>Coba Lagi</Text>
           </TouchableOpacity>
         </View>
@@ -255,6 +293,30 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 4,
   },
+  badgeLocal: {
+    backgroundColor: '#FEF3C7',
+  },
+  badgeError: {
+    backgroundColor: '#FDE8E8',
+  },
+  offlineNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  offlineNoteText: {
+    flex: 1,
+    fontSize: 11,
+    color: '#92400E',
+    fontWeight: '500',
+  },
   onlineDot: {
     width: 6,
     height: 6,
@@ -328,15 +390,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
+  errorTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.neutral900,
+  },
   errorText: {
     fontSize: 12,
-    color: colors.danger,
+    color: colors.neutral500,
     textAlign: 'center',
+    paddingHorizontal: 8,
+  },
+  retryCountText: {
+    fontSize: 11,
+    color: colors.neutral400,
+    fontStyle: 'italic',
   },
   retryBtn: {
     marginTop: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: colors.dangerLight,
     borderRadius: 8,
   },

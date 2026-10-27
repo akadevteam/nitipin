@@ -4,6 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from './src/context/AppContext';
 import AppNavigator from './src/navigation/AppNavigator';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import NetworkStatusBar from './src/components/NetworkStatusBar';
+import { API_BASE_URL } from './src/services/api';
 
 export default function App() {
   useEffect(() => {
@@ -26,12 +29,17 @@ export default function App() {
 
   return (
     <SafeAreaProvider style={styles.container}>
-      <View style={styles.container}>
-        <AppProvider>
-          <StatusBar style="dark" />
-          <AppNavigator />
-        </AppProvider>
-      </View>
+      {/* ErrorBoundary membungkus seluruh app untuk menangkap crash tak terduga */}
+      <ErrorBoundary>
+        <View style={styles.container}>
+          <AppProvider>
+            <StatusBar style="dark" />
+            <AppNavigator />
+            {/* NetworkStatusBar — indikator offline/online di bagian atas */}
+            <NetworkStatusBar apiBaseUrl={API_BASE_URL} />
+          </AppProvider>
+        </View>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }
