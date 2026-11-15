@@ -57,7 +57,8 @@ nitipin/
     │   └── SlotModel.js           # DTO + mapper untuk slot parkir
     │
     ├── services/
-    │   └── apiService.js          # Fetch & parse penitipan_api.json → DTO
+    │   ├── apiService.js          # Fetch & parse penitipan_api.json → DTO
+    │   └── todoService.js         # REST API Async (GET, POST, PATCH, DELETE) JSONPlaceholder (Week 9)
     │
     ├── theme/
     │   └── colors.js              # Palet warna, shadows, statusColors
@@ -106,6 +107,7 @@ nitipin/
             ├── BookingDetailScreen.jsx
             ├── MotorListScreen.jsx
             ├── MonitoringFormScreen.jsx  # Form monitoring + upload foto kondisi
+            ├── TodoListScreen.jsx        # Checklist tugas penitipan (CRUD REST API Async Week 9)
             └── ProfileScreen.jsx
 ```
 

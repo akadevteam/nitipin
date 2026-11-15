@@ -88,6 +88,34 @@ export default function DashboardScreen({ navigation }) {
           </View>
         </View>
 
+        {/* Banner Fitur: Checklist Tugas Operasional (Todo List Async - Week 9) */}
+        <TouchableOpacity
+          style={[styles.todoBannerCard, shadows.sm]}
+          onPress={() => navigation.navigate('TodoList')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.todoBannerLeft}>
+            <View style={styles.todoIconBadge}>
+              <Ionicons name="checkbox-outline" size={24} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.todoHeaderRow}>
+                <View style={styles.todoBadgeWrap}>
+                  <Text style={styles.todoWeekBadge}>TUGAS WEEK 9</Text>
+                </View>
+                <Text style={styles.todoApiDot}>● REST API ASYNC</Text>
+              </View>
+              <Text style={styles.todoBannerTitle}>Checklist Tugas Penitipan</Text>
+              <Text style={styles.todoBannerDesc}>
+                CRUD Asinkron (GET, POST, PATCH, DELETE) dengan React Hooks
+              </Text>
+            </View>
+          </View>
+          <View style={styles.todoArrowWrap}>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+          </View>
+        </TouchableOpacity>
+
         {/* REST API & Data Modeling Display */}
         <ApiDataDisplay />
 
@@ -249,6 +277,72 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { fontSize: 15, fontWeight: '700', color: colors.neutral900, marginTop: 8 },
   emptyDesc: { fontSize: 12, color: colors.neutral500, marginTop: 2 },
+  todoBannerCard: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: colors.primaryLight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  todoBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    gap: 12,
+  },
+  todoIconBadge: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  todoHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  todoBadgeWrap: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  todoWeekBadge: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: colors.white,
+  },
+  todoApiDot: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.secondary,
+  },
+  todoBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.neutral900,
+  },
+  todoBannerDesc: {
+    fontSize: 11,
+    color: colors.neutral500,
+    marginTop: 2,
+  },
+  todoArrowWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.neutral100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   bookingItem: {
     backgroundColor: colors.white,
     borderRadius: 14,

@@ -14,9 +14,21 @@ import MotorListScreen from '../screens/pengelola/MotorListScreen';
 import MonitoringFormScreen from '../screens/pengelola/MonitoringFormScreen';
 import ProfilePengelolaScreen from '../screens/pengelola/ProfileScreen';
 import PermissionsScreen from '../screens/PermissionsScreen';
+import TodoListScreen from '../screens/pengelola/TodoListScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+// ── Dashboard Stack Pengelola ───────────────────────────────────
+function DashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      <Stack.Screen name="TodoList" component={TodoListScreen} />
+      <Stack.Screen name="Permissions" component={PermissionsScreen} />
+    </Stack.Navigator>
+  );
+}
 
 // ── Profile Stack Pengelola ─────────────────────────────────────
 function ProfileStack() {
@@ -24,6 +36,7 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfilePengelola" component={ProfilePengelolaScreen} />
       <Stack.Screen name="Permissions" component={PermissionsScreen} />
+      <Stack.Screen name="TodoList" component={TodoListScreen} />
     </Stack.Navigator>
   );
 }
@@ -86,7 +99,7 @@ export default function PengelolaNavigator() {
         },
       })}
     >
-      <Tab.Screen name="DashboardTab" component={DashboardScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="DashboardTab" component={DashboardStack} options={{ title: 'Dashboard' }} />
       <Tab.Screen name="BookingTab" component={BookingStack} options={{ title: 'Booking' }} />
       <Tab.Screen name="MotorTab" component={MotorStack} options={{ title: 'Motor' }} />
       <Tab.Screen name="ProfilTab" component={ProfileStack} options={{ title: 'Profil' }} />

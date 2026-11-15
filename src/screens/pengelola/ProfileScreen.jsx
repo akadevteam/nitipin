@@ -73,6 +73,22 @@ export default function ProfilePengelolaScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={18} color={colors.neutral400} />
         </TouchableOpacity>
 
+        {/* Tugas Operasional / Todo Async (Week 9) */}
+        <TouchableOpacity
+          style={styles.sensorMenuCard}
+          onPress={() => navigation.navigate('TodoList')}
+          activeOpacity={0.8}
+        >
+          <View style={[styles.sensorMenuIcon, { backgroundColor: colors.secondaryLight }]}>
+            <Ionicons name="checkbox-outline" size={20} color={colors.secondary} />
+          </View>
+          <View style={styles.sensorMenuInfo}>
+            <Text style={styles.sensorMenuTitle}>Checklist Tugas Penitipan (Week 9)</Text>
+            <Text style={styles.sensorMenuSub}>CRUD REST API asinkron (GET, POST, PATCH, DELETE)</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.neutral400} />
+        </TouchableOpacity>
+
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
           <Ionicons name="log-out-outline" size={18} color={colors.danger} />
