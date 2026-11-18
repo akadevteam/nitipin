@@ -71,6 +71,22 @@ export default function ProfileScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={18} color={colors.neutral400} />
         </TouchableOpacity>
 
+        {/* Peta & Lokasi Penitipan (Week 10 LBS) */}
+        <TouchableOpacity
+          style={styles.sensorMenuCard}
+          onPress={() => navigation.navigate('Location')}
+          activeOpacity={0.8}
+        >
+          <View style={[styles.sensorMenuIcon, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="map-outline" size={20} color={colors.primary} />
+          </View>
+          <View style={styles.sensorMenuInfo}>
+            <Text style={styles.sensorMenuTitle}>Peta & Lokasi Penitipan (Week 10)</Text>
+            <Text style={styles.sensorMenuSub}>GPS, peta interaktif, reverse geocoding & geofence</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.neutral400} />
+        </TouchableOpacity>
+
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
           <Ionicons name="log-out-outline" size={18} color={colors.danger} />

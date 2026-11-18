@@ -137,6 +137,34 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         )}
 
+        {/* Banner Fitur: Peta & Lokasi Penitipan (LBS - Week 10) */}
+        <TouchableOpacity
+          style={[styles.lbsBannerCard, shadows.sm]}
+          onPress={() => navigation.navigate('Location')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.lbsBannerLeft}>
+            <View style={styles.lbsIconBadge}>
+              <Ionicons name="map-outline" size={24} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.lbsHeaderRow}>
+                <View style={styles.lbsBadgeWrap}>
+                  <Text style={styles.lbsWeekBadge}>TUGAS WEEK 10</Text>
+                </View>
+                <Text style={styles.lbsApiDot}>● GPS & GEOFENCING</Text>
+              </View>
+              <Text style={styles.lbsBannerTitle}>Peta & Lokasi Penitipan</Text>
+              <Text style={styles.lbsBannerDesc}>
+                Akses GPS, peta interaktif, reverse geocoding, dan geofencing area Hub
+              </Text>
+            </View>
+          </View>
+          <View style={styles.lbsArrowWrap}>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+          </View>
+        </TouchableOpacity>
+
         {/* REST API & Data Modeling Display */}
         <ApiDataDisplay />
 
@@ -237,6 +265,73 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   newBookingText: { fontSize: 14, fontWeight: '600', color: colors.primary },
+  // LBS Banner (Week 10)
+  lbsBannerCard: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: colors.primaryLight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  lbsBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    gap: 12,
+  },
+  lbsIconBadge: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lbsHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  lbsBadgeWrap: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  lbsWeekBadge: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: colors.white,
+  },
+  lbsApiDot: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.secondary,
+  },
+  lbsBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.neutral900,
+  },
+  lbsBannerDesc: {
+    fontSize: 11,
+    color: colors.neutral500,
+    marginTop: 2,
+  },
+  lbsArrowWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.neutral100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // CTA Card
   ctaCard: {
     backgroundColor: colors.white,

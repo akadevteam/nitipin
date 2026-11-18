@@ -13,12 +13,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import Header from '../components/Header';
 import { colors, shadows } from '../theme/colors';
 
 export default function PermissionsScreen({ navigation }) {
   const [cameraGranted, setCameraGranted] = useState(false);
   const [mediaGranted, setMediaGranted] = useState(false);
+  const [locationGranted, setLocationGranted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Periksa status izin saat layar dibuka
@@ -27,9 +29,11 @@ export default function PermissionsScreen({ navigation }) {
       setLoading(true);
       const cam = await ImagePicker.getCameraPermissionsAsync();
       const media = await ImagePicker.getMediaLibraryPermissionsAsync();
+      const loc = await Location.getForegroundPermissionsAsync();
 
       setCameraGranted(cam.granted);
       setMediaGranted(media.granted);
+      setLocationGranted(loc.granted);
     } catch (e) {
       console.log('Error checking permissions:', e);
     } finally {
@@ -74,6 +78,26 @@ export default function PermissionsScreen({ navigation }) {
           showOpenSettingsAlert('Media / Galeri');
         } else {
           Alert.alert('Izin Ditolak ❌', 'Anda menolak akses penyimpanan media galeri.');
+        }
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
+  };
+
+  // Request Izin Lokasi GPS (Week 10)
+  const requestLocationPermission = async () => {
+    try {
+      const result = await Location.requestForegroundPermissionsAsync();
+      setLocationGranted(result.granted);
+
+      if (result.granted) {
+        Alert.alert('Izin Diberikan ✅', 'Akses sensor lokasi GPS aktif untuk peta dan geofencing.');
+      } else {
+        if (!result.canAskAgain) {
+          showOpenSettingsAlert('Lokasi GPS');
+        } else {
+          Alert.alert('Izin Ditolak ❌', 'Anda menolak akses sensor lokasi GPS.');
         }
       }
     } catch (err) {
@@ -205,6 +229,52 @@ export default function PermissionsScreen({ navigation }) {
               value={mediaGranted}
               onValueChange={requestMediaPermission}
               trackColor={{ false: colors.neutral200, true: colors.secondary }}
+              thumbColor={colors.white}
+            />
+          </View>
+        </View>
+
+        {/* Status Akses Lokasi GPS (Week 10) */}
+        <View style={[styles.sensorCard, shadows.sm]}>
+          <View style={styles.sensorHeader}>
+            <View style={[styles.sensorIconBox, { backgroundColor: '#EBF5FF' }]}>
+              <Ionicons name="location" size={24} color={colors.primary} />
+            </View>
+            <View style={styles.sensorInfo}>
+              <View style={styles.titleRow}>
+                <Text style={styles.sensorName}>Lokasi GPS (LBS)</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: locationGranted ? colors.secondaryLight : colors.dangerLight },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusBadgeText,
+                      { color: locationGranted ? colors.secondary : colors.danger },
+                    ]}
+                  >
+                    {locationGranted ? 'Diizinkan' : 'Ditolak'}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.permissionKey}>ACCESS_FINE_LOCATION / FOREGROUND</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sensorDesc}>
+            Digunakan untuk menampilkan posisi di peta interaktif, reverse geocoding, dan mendeteksi area penitipan (geofencing).
+          </Text>
+
+          <View style={styles.divider} />
+
+          <View style={styles.actionRow}>
+            <Text style={styles.actionLabel}>Status Akses Lokasi GPS:</Text>
+            <Switch
+              value={locationGranted}
+              onValueChange={requestLocationPermission}
+              trackColor={{ false: colors.neutral200, true: colors.primary }}
               thumbColor={colors.white}
             />
           </View>

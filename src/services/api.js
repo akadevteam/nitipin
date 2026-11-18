@@ -5,7 +5,7 @@
 import { Platform } from 'react-native';
 
 // IP Wi-Fi laptop Anda saat ini: 192.168.0.10
-export const API_BASE_URL = 'http://192.168.0.10:5000/api';
+export const API_BASE_URL = 'http://10.126.172.41:5000/api';
 
 // ─── Konfigurasi ────────────────────────────────────────────
 const DEFAULT_TIMEOUT_MS = 10000; // 10 detik
