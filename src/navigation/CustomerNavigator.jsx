@@ -16,6 +16,8 @@ import ConditionReportScreen from '../screens/customer/ConditionReportScreen';
 import HistoryScreen from '../screens/customer/HistoryScreen';
 import ProfileScreen from '../screens/customer/ProfileScreen';
 import PermissionsScreen from '../screens/PermissionsScreen';
+import LocationScreen from '../screens/customer/LocationScreen';
+import NotificationScreen from '../screens/customer/NotificationScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -31,6 +33,8 @@ function HomeStack() {
       <Stack.Screen name="Permissions" component={PermissionsScreen} />
       <Stack.Screen name="Monitoring" component={MonitoringScreen} />
       <Stack.Screen name="ConditionReport" component={ConditionReportScreen} />
+      <Stack.Screen name="Location" component={LocationScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
     </Stack.Navigator>
   );
 }
@@ -41,6 +45,8 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Permissions" component={PermissionsScreen} />
+      <Stack.Screen name="Location" component={LocationScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
     </Stack.Navigator>
   );
 }

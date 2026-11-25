@@ -82,3 +82,27 @@ CREATE TABLE IF NOT EXISTS slot_parkir (
   status      ENUM('tersedia', 'terisi', 'maintenance') DEFAULT 'tersedia',
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ─── Device Push Tokens (Week 11 / Sprint 09) ────────────────────────────
+CREATE TABLE IF NOT EXISTS device_tokens (
+  id           VARCHAR(36) PRIMARY KEY,
+  user_id      VARCHAR(36) DEFAULT NULL,
+  push_token   VARCHAR(255) NOT NULL UNIQUE,
+  device_name  VARCHAR(100) DEFAULT NULL,
+  platform     VARCHAR(20)  DEFAULT 'android',
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ─── Notification History (Week 11 / Sprint 09) ───────────────────────────
+CREATE TABLE IF NOT EXISTS notification_history (
+  id           VARCHAR(36) PRIMARY KEY,
+  user_id      VARCHAR(36) DEFAULT NULL,
+  title        VARCHAR(255) NOT NULL,
+  body         TEXT NOT NULL,
+  data_payload JSON DEFAULT NULL,
+  push_token   VARCHAR(255) DEFAULT NULL,
+  status       VARCHAR(50) DEFAULT 'sent',
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

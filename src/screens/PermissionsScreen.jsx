@@ -13,12 +13,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import Header from '../components/Header';
 import { colors, shadows } from '../theme/colors';
 
 export default function PermissionsScreen({ navigation }) {
   const [cameraGranted, setCameraGranted] = useState(false);
   const [mediaGranted, setMediaGranted] = useState(false);
+  const [locationGranted, setLocationGranted] = useState(false);
+  const [notifGranted, setNotifGranted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Periksa status izin saat layar dibuka
@@ -27,9 +31,13 @@ export default function PermissionsScreen({ navigation }) {
       setLoading(true);
       const cam = await ImagePicker.getCameraPermissionsAsync();
       const media = await ImagePicker.getMediaLibraryPermissionsAsync();
+      const loc = await Location.getForegroundPermissionsAsync();
+      const notif = await Notifications.getPermissionsAsync();
 
       setCameraGranted(cam.granted);
       setMediaGranted(media.granted);
+      setLocationGranted(loc.granted);
+      setNotifGranted(notif.granted);
     } catch (e) {
       console.log('Error checking permissions:', e);
     } finally {
@@ -74,6 +82,46 @@ export default function PermissionsScreen({ navigation }) {
           showOpenSettingsAlert('Media / Galeri');
         } else {
           Alert.alert('Izin Ditolak ❌', 'Anda menolak akses penyimpanan media galeri.');
+        }
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
+  };
+
+  // Request Izin Lokasi GPS (Week 10)
+  const requestLocationPermission = async () => {
+    try {
+      const result = await Location.requestForegroundPermissionsAsync();
+      setLocationGranted(result.granted);
+
+      if (result.granted) {
+        Alert.alert('Izin Diberikan ✅', 'Akses sensor lokasi GPS aktif untuk peta dan geofencing.');
+      } else {
+        if (!result.canAskAgain) {
+          showOpenSettingsAlert('Lokasi GPS');
+        } else {
+          Alert.alert('Izin Ditolak ❌', 'Anda menolak akses sensor lokasi GPS.');
+        }
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
+  };
+
+  // Request Izin Notifikasi (Week 11)
+  const requestNotifPermission = async () => {
+    try {
+      const result = await Notifications.requestPermissionsAsync();
+      setNotifGranted(result.granted);
+
+      if (result.granted) {
+        Alert.alert('Izin Diberikan ✅', 'Akses notifikasi push aktif untuk pembaruan status penitipan.');
+      } else {
+        if (!result.canAskAgain) {
+          showOpenSettingsAlert('Notifikasi Push');
+        } else {
+          Alert.alert('Izin Ditolak ❌', 'Anda menolak akses notifikasi push.');
         }
       }
     } catch (err) {
@@ -205,6 +253,98 @@ export default function PermissionsScreen({ navigation }) {
               value={mediaGranted}
               onValueChange={requestMediaPermission}
               trackColor={{ false: colors.neutral200, true: colors.secondary }}
+              thumbColor={colors.white}
+            />
+          </View>
+        </View>
+
+        {/* Status Akses Lokasi GPS (Week 10) */}
+        <View style={[styles.sensorCard, shadows.sm]}>
+          <View style={styles.sensorHeader}>
+            <View style={[styles.sensorIconBox, { backgroundColor: '#EBF5FF' }]}>
+              <Ionicons name="location" size={24} color={colors.primary} />
+            </View>
+            <View style={styles.sensorInfo}>
+              <View style={styles.titleRow}>
+                <Text style={styles.sensorName}>Lokasi GPS (LBS)</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: locationGranted ? colors.secondaryLight : colors.dangerLight },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusBadgeText,
+                      { color: locationGranted ? colors.secondary : colors.danger },
+                    ]}
+                  >
+                    {locationGranted ? 'Diizinkan' : 'Ditolak'}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.permissionKey}>ACCESS_FINE_LOCATION / FOREGROUND</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sensorDesc}>
+            Digunakan untuk menampilkan posisi di peta interaktif, reverse geocoding, dan mendeteksi area penitipan (geofencing).
+          </Text>
+
+          <View style={styles.divider} />
+
+          <View style={styles.actionRow}>
+            <Text style={styles.actionLabel}>Status Akses Lokasi GPS:</Text>
+            <Switch
+              value={locationGranted}
+              onValueChange={requestLocationPermission}
+              trackColor={{ false: colors.neutral200, true: colors.primary }}
+              thumbColor={colors.white}
+            />
+          </View>
+        </View>
+
+        {/* Status Akses Notifikasi (Week 11) */}
+        <View style={[styles.sensorCard, shadows.sm]}>
+          <View style={styles.sensorHeader}>
+            <View style={[styles.sensorIconBox, { backgroundColor: '#EEF2FF' }]}>
+              <Ionicons name="notifications" size={24} color="#4F46E5" />
+            </View>
+            <View style={styles.sensorInfo}>
+              <View style={styles.titleRow}>
+                <Text style={styles.sensorName}>Push Notifikasi (Week 11)</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: notifGranted ? colors.secondaryLight : colors.dangerLight },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusBadgeText,
+                      { color: notifGranted ? colors.secondary : colors.danger },
+                    ]}
+                  >
+                    {notifGranted ? 'Diizinkan' : 'Ditolak'}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.permissionKey}>POST_NOTIFICATIONS / EXPO PUSH</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sensorDesc}>
+            Digunakan untuk menerima notifikasi status penitipan, pengingat batas waktu loker, dan peringatan darurat.
+          </Text>
+
+          <View style={styles.divider} />
+
+          <View style={styles.actionRow}>
+            <Text style={styles.actionLabel}>Status Izin Notifikasi:</Text>
+            <Switch
+              value={notifGranted}
+              onValueChange={requestNotifPermission}
+              trackColor={{ false: colors.neutral200, true: '#4F46E5' }}
               thumbColor={colors.white}
             />
           </View>

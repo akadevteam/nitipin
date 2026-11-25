@@ -9,11 +9,12 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',        require('./routes/auth'));
-app.use('/api/bookings',    require('./routes/bookings'));
-app.use('/api/monitorings', require('./routes/monitorings'));
-app.use('/api/layanan',     require('./routes/layanan'));
-app.use('/api/slots',       require('./routes/slots'));
+app.use('/api/auth',          require('./routes/auth'));
+app.use('/api/bookings',      require('./routes/bookings'));
+app.use('/api/monitorings',   require('./routes/monitorings'));
+app.use('/api/layanan',       require('./routes/layanan'));
+app.use('/api/slots',         require('./routes/slots'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Health check
 app.get('/api/health', (req, res) => {

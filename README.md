@@ -58,7 +58,8 @@ nitipin/
     │
     ├── services/
     │   ├── apiService.js          # Fetch & parse penitipan_api.json → DTO
-    │   └── todoService.js         # REST API Async (GET, POST, PATCH, DELETE) JSONPlaceholder (Week 9)
+    │   ├── todoService.js         # REST API Async (GET, POST, PATCH, DELETE) JSONPlaceholder (Week 9)
+    │   └── locationService.js     # Location-Based Services, Haversine, Geofencing (Week 10)
     │
     ├── theme/
     │   └── colors.js              # Palet warna, shadows, statusColors
@@ -99,6 +100,7 @@ nitipin/
         │   ├── MonitoringScreen.jsx
         │   ├── ConditionReportScreen.jsx
         │   ├── HistoryScreen.jsx
+        │   ├── LocationScreen.jsx        # Peta, GPS, Reverse Geocoding & Geofencing (Week 10)
         │   └── ProfileScreen.jsx
         │
         └── pengelola/

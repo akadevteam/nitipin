@@ -26,7 +26,7 @@ import {
 } from '../../utils/helpers';
 
 export default function BookingDetailScreen({ navigation, route }) {
-  const { bookingId } = route.params;
+  const bookingId = route.params?.bookingId || route.params?.id || 'b1';
   const { getBookingById, updateBooking } = useApp();
   const booking = getBookingById(bookingId);
   const [loading, setLoading] = useState(false);
